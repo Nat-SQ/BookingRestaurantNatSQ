@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodieSpot - Pide y Reserva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style3.css">
+    
+</head>
+<body>
+
+    <header>
+        <div class="logo">FoodieSpot</div>
+        <!-- CONTENEDOR MODIFICADO -->
+        <div class="header-actions">
+            <!-- Link para monetización -->
+            <button id="partner-link" style="background:transparent; border:none; font-weight:600; cursor:pointer; color:var(--primary-color-dark); margin-right:10px;">Soy Restaurante</button>
+            
+            <!-- BOTÓN DE AUTENTICACIÓN AÑADIDO -->
+            <button id="auth-button">Iniciar Sesión</button>
+
+            <!-- BOTÓN DE CARRITO-->
+            <div id="cart-icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 -960 960 960" width="28"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-480q-11 20-29.5 31t-42.5 11H316l-112 200H80v-80h130l112-200-214-440H0v-80h130l78 160Zm224 280h280-280Z"/></svg>
+                <div id="cart-count" class="hidden">0</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- VISTA 1: RESTAURANTES -->
+        <section id="restaurants-section">
+            <h2>Elige tu tipo de cocina favorita</h2>
+            <div id="restaurants-grid"></div>
+        </section>
+
+        <!-- VISTA 2: MENÚ -->
+        <section id="menu-section" class="hidden">
+            <div id="menu-header">
+                <h2 id="menu-title"></h2>
+                <button id="back-to-restaurants" class="back-button">&larr; Volver a Restaurantes</button>
+            </div>
+            <div id="menu-grid"></div>
+        </section>
+
+        <!-- VISTA 3: RESERVA -->
+        <section id="booking-section" class="hidden">
+            <div id="booking-header">
+                <h2 id="booking-title"></h2>
+                <button id="back-to-menu" class="back-button">&larr; Volver al Menú</button>
+            </div>
+            <div class="booking-layout">
+                <div id="selection-column">
+                    <div class="filter-card">
+                        <h3>Date & Time</h3>
+                        <div class="date-time-inputs"><input type="date" id="booking-date"><input type="time" id="booking-time"></div>
+                        <h3>Party Size</h3>
+                        <div class="party-size-selector">
+                            <button data-size="2" class="active">2 Ppl</button><button data-size="4">4 Ppl</button><button data-size="6">6 Ppl</button><button data-size="8">8 Ppl</button>
+                        </div>
+                    </div>
+                    <div class="table-selection-card">
+                        <h3>Select Your Table</h3>
+                        <div class="table-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background-color: var(--available-color);"></span> Available</div>
+                            <div class="legend-item"><span class="legend-dot" style="background-color: var(--occupied-color);"></span> Occupied</div>
+                            <div class="legend-item"><span class="legend-dot" style="background-color: var(--primary-color);"></span> Selected</div>
+                        </div>
+                        <div id="table-map"></div>
+                    </div>
+                </div>
+                <aside id="reservation-summary">
+                    <h3>Resumen de tu Reserva</h3>
+                    <h4>Pre-orden de Platillos:</h4>
+                    <ul id="summary-cart-items"></ul>
+                    <div id="summary-total"></div>
+                    <hr style="margin: 20px 0;">
+                    <form id="booking-form">
+                        <div class="form-group"><label for="name">Nombre Completo</label><input type="text" id="name" required></div>
+                        <div class="form-group"><label for="email">Correo Electrónico</label><input type="email" id="email" required></div>
+                        <div class="form-group"><label for="phone">Número Telefónico</label><input type="tel" id="phone" required></div>
+                        <button type="submit" id="confirm-booking">Confirmar Reserva</button>
+                    </form>
+                </aside>
+            </div>
+        </section>
+
+        <!-- VISTA 4: CONFIRMACIÓN (NUEVO) -->
+        <section id="confirmation-section" class="hidden"></section>
+
+        <!-- VISTA 5: PLANES PARA RESTAURANTES (NUEVO) -->
+        <section id="monetization-section" class="hidden">
+            <div class="monetization-header">
+                <h2>Impulsa tu Restaurante</h2>
+                <p>Elige el plan perfecto para gestionar tus reservas, mostrar tu menú y atraer más comensales con FoodieSpot.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Plan Básico -->
+                <div class="pricing-card">
+                    <svg class="plan-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 1.138a3.002 3.002 0 014.886 0L10.26 4.269c.617.965 1.2 1.728 1.74 2.211 1.25 1.134 2.252.951 2.252.951m-1.5 13.5H3.375c-.621 0-1.125.504-1.125 1.125v1.125c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.375c0-.621-.504-1.125-1.125-1.125z" /></svg>
+                    <div class="plan-name">Inicial</div>
+                    <p class="plan-description">Ideal para restaurantes pequeños que inician su digitalización.</p>
+                    <div class="plan-price">Gratis</div>
+                    <span class="plan-period">Para siempre</span>
+                    <ul class="plan-features">
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Perfil básico en la app</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Gestión de reservas manual</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Menú visible (sin fotos)</li>
+                    </ul>
+                </div>
+
+                <!-- Plan Pro (Destacado) -->
+                <div class="pricing-card featured">
+                    <div class="featured-badge">Más Popular</div>
+                    <svg class="plan-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                    <div class="plan-name">Crecimiento</div>
+                    <p class="plan-description">Automatiza procesos y permite pedidos anticipados.</p>
+                    <div class="plan-price">$29 USD</div>
+                    <span class="plan-period">/ mes facturado anualmente</span>
+                    <ul class="plan-features">
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Todo lo del plan Inicial</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> <strong>Pre-orden de platillos</strong></li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Menú con fotos ilimitadas</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Mapa de mesas interactivo</li>
+                    </ul>
+                </div>
+
+                <!-- Plan Max -->
+                <div class="pricing-card">
+                    <svg class="plan-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" /></svg>
+                    <div class="plan-name">Corporativo</div>
+                    <p class="plan-description">Soluciones a medida para cadenas y alta demanda.</p>
+                    <div class="plan-price">$99 USD</div>
+                    <span class="plan-period">/ mes facturado mensualmente</span>
+                    <ul class="plan-features">
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Todo lo del plan Crecimiento</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Posicionamiento prioritario</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Analíticas avanzadas de clientes</li>
+                        <li><svg class="check-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Soporte dedicado 24/7</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Formulario de Contacto -->
+            <div class="contact-section">
+                <div class="contact-header">
+                    <h3>¿Interesado? Contáctanos</h3>
+                    <p>Déjanos tus datos y un asesor se pondrá en contacto contigo.</p>
+                </div>
+                <form id="partner-contact-form" class="contact-form">
+                    <div class="contact-grid">
+                        <div class="form-group">
+                            <label for="contact-name">Nombre Completo</label>
+                            <input type="text" id="contact-name" required placeholder="Ej. Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Teléfono</label>
+                            <input type="tel" id="contact-phone" required placeholder="Ej. 55 1234 5678">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Correo Electrónico</label>
+                            <input type="email" id="contact-email" required placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-restaurant">Nombre del Restaurante</label>
+                            <input type="text" id="contact-restaurant" required placeholder="Ej. La Casa del Taco">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="contact-comments">Comentarios o Dudas</label>
+                            <textarea id="contact-comments" placeholder="Me gustaría saber más sobre el plan Crecimiento..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="contact-submit-btn">Solicitar Información</button>
+                </form>
+                <div style="text-align: center; margin-top: 20px; color: #6b7280;">
+                    <p>O llámanos al: <strong>(55) 1234-5678</strong></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="order-summary-bar" class="hidden">
+        <div class="order-summary-content">
+            <div class="order-total-display">
+                <div>
+                    <span class="total-text">Order Total</span>
+                    <div id="order-total-price" style="font-weight: 700;">$0.00</div>
+                </div>
+            </div>
+            <button id="select-table-btn">Select Table &rarr;</button>
+        </div>
+    </div>
+
+    <div id="details-modal" class="modal"></div>
+
+    <!-- MODAL DE AUTENTICACIÓN AÑADIDO -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <button class="auth-modal-close-btn">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+                <button class="auth-tab" data-tab="register">Registrarse</button>
+            </div>
+            <!-- Formulario de Login -->
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <p id="login-error-message" class="error-message"></p>
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+            <!-- Formulario de Registro -->
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="register-email">Correo Electrónico</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirmar Contraseña</label>
+                    <input type="password" id="register-confirm-password" required>
+                </div>
+                <p id="register-error-message" class="error-message"></p>
+                <button type="submit">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CARRITO LATERAL (NUEVO) -->
+    <div id="cart-overlay" class="cart-overlay"></div>
+    <div id="cart-drawer">
+        <div class="cart-header">
+            <h3>Your Order</h3>
+            <button class="cart-close-btn">&times;</button>
+        </div>
+        <div id="cart-body" class="cart-body">
+            <!-- Los items del carrito se insertarán aquí dinámicamente -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cart-total-price">$0.00</span>
+            </div>
+            <button class="cart-continue-btn">Continue Selection</button>
+        </div>
+    </div>
+
+    <div id="confirmation-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>¡Reserva Confirmada!</h2>
+            <p>Hemos enviado los detalles a tu correo electrónico.</p>
+            <p id="modal-summary"></p>
+            <button id="close-modal">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE INFORMACIÓN (NUEVO) -->
+    <div id="info-modal" class="modal">
+        <div class="info-modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div class="info-modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+            </div>
+            <h2>Inicio de Sesión Requerido</h2>
+            <p>Debes iniciar sesión en tu cuenta para poder confirmar una reserva.</p>
+            <button id="info-modal-accept">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE SELECCIONA UNA MESA (NUEVO) -->
+    <div id="info-modal-table" class="modal">
+        <div class="info-modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div class="info-modal-icon" style="background-color: #ffedd5;">
+                <svg fill="#f97316" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <g><g><path d="M264.181,76.909c-93.646,0-169.561,75.915-169.561,169.561s75.915,169.561,169.561,169.561 s169.561-75.915,169.561-169.561S357.827,76.909,264.181,76.909z M264.18,375.129c-70.942,0-128.658-57.716-128.658-128.658 s57.716-128.658,128.658-128.658s128.658,57.716,128.658,128.658S335.123,375.129,264.18,375.129z"></path></g></g> 
+                        <g><g><path d="M264.18,152.299c-51.926,0-94.171,42.245-94.171,94.171c0,51.926,42.245,94.171,94.171,94.171 c51.926,0,94.171-42.245,94.171-94.171S316.107,152.299,264.18,152.299z"></path></g></g>
+                        <g><g><path d="M501.315,260.687V54.64c0-1.988-1.269-3.755-3.155-4.39c-1.884-0.634-3.963,0.007-5.166,1.591 c-25.708,33.903-39.622,75.283-39.622,117.83v75.378c0,8.645,7.008,15.654,15.654,15.654h6.526 c-6.433,66.443-10.684,159.37-10.684,170.251c0,17.142,10.551,31.038,23.566,31.038c13.015,0,23.566-13.897,23.566-31.038 C512,420.072,507.749,327.13,501.315,260.687z"></path></g></g>
+                        <g><g><path d="M68.417,219.843c13.042-7.9,21.759-22.224,21.759-38.586l-6.46-105.621c-0.247-4.026-3.584-7.165-7.618-7.165 c-4.363,0-7.839,3.655-7.622,8.01l4.201,84.709c0,4.762-3.861,8.621-8.621,8.621c-4.761,0-8.621-3.861-8.621-8.621l-2.099-84.674 c-0.111-4.475-3.77-8.044-8.247-8.044c-4.477,0-8.135,3.57-8.247,8.044l-2.099,84.674c0,4.762-3.861,8.621-8.621,8.621 c-4.761,0-8.621-3.861-8.621-8.621l4.201-84.709c0.216-4.357-3.262-8.01-7.622-8.01c-4.034,0-7.371,3.139-7.617,7.165L0,181.258 c0,16.362,8.716,30.685,21.759,38.586c8.488,5.141,13.22,14.753,12.126,24.617c-7.363,66.358-12.363,174.693-12.363,186.494 c0,17.142,10.551,31.038,23.566,31.038c13.015,0,23.566-13.897,23.566-31.038c0-11.801-5.001-120.136-12.363-186.494 C55.196,234.602,59.933,224.982,68.417,219.843z"></path></g></g> 
+                    </g>
+                </svg>
+            </div>
+           <!--  <h2>Inicio de Sesión Requerido</h2> -->
+            <p>Por favor, selecciona una mesa para poder confirmar una reserva.</p>
+            <button id="info-modal-accept">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE BIENVENIDA (NUEVO) -->
+    <div id="welcome-modal" class="welcome-modal">
+        <div class="welcome-modal-content">
+            <div class="welcome-modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+            <h2>¡Bienvenido de nuevo!</h2>
+            <p>Has iniciado sesión como <strong id="welcome-user-email"></strong>.</p>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN (NUEVO) -->
+    <div id="confirm-logout-modal" class="modal">
+        <div class="confirm-modal-content">
+            <h2>¿Cerrar Sesión?</h2>
+            <p>¿Estás seguro de que quieres cerrar la sesión de tu cuenta?</p>
+            <div class="confirm-modal-actions">
+                <button id="cancel-logout-btn" class="btn-secondary">Cancelar</button>
+                <button id="confirm-logout-btn" class="btn-danger">Sí, Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE BIENVENIDA (NUEVO) -->
+    <div id="logout-modal" class="welcome-modal">
+        <div class="welcome-modal-content">
+            <div class="welcome-modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+            <h2>¡Has cerrado sesión correctamente!</h2>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÉXITO FORMULARIO PARTNERS (NUEVO) -->
+    <div id="partner-success-modal" class="modal">
+        <div class="modal-content partner-success-content">
+            <button class="modal-close-btn" id="partner-modal-x-close">&times;</button>
+            
+            <div class="success-animation-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+
+            <h2>¡Solicitud Recibida!</h2>
+            <p>Muchas gracias, <strong id="partner-success-name-display"></strong>.</p>
+            <p class="success-message-detail">
+                Hemos recibido la información de tu restaurante. Nuestro equipo comercial revisará tus datos y te contactará al número proporcionado en menos de 24 horas.
+            </p>
+
+            <button id="partner-success-btn">Entendido</button>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- ESTADO DE LA APLICACIÓN (MODIFICADO) ---
+        let cart = []; // Ahora guardará objetos con { ...meal, quantity: X }
+        let currentMenu = [];
+        let currentRestaurant = '';
+        let selectedTable = null;
+        let tableLockTimer = null, countdownInterval = null;
+        let currentPartySize = 2;
+        const tablesData = [ { id: 1, capacity: 2, status: 'available' }, { id: 2, capacity: 2, status: 'available' }, { id: 3, capacity: 4, status: 'available' }, { id: 4, capacity: 4, status: 'available' }, { id: 5, capacity: 6, status: 'occupied' }, { id: 6, capacity: 2, status: 'available' }, { id: 7, capacity: 8, status: 'available' }, { id: 8, capacity: 4, status: 'occupied' }, { id: 9, capacity: 2, status: 'available' }, { id: 10, capacity: 6, status: 'available' }];
+        const API_URL = 'https://www.themealdb.com/api/json/v1/1/';
+        const PERSON_ICON_SVG = `<svg height="14" viewBox="0 -960 960 960" width="14" fill="currentColor"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>`;
+
+        // --- SELECTORES ---
+        const mainViews = { 
+            restaurants: document.getElementById('restaurants-section'), 
+            menu: document.getElementById('menu-section'), 
+            booking: document.getElementById('booking-section'),
+            confirmation: document.getElementById('confirmation-section'),
+            monetization: document.getElementById('monetization-section') 
+        };
+        const orderSummaryBar = document.getElementById('order-summary-bar');
+        const detailsModal = document.getElementById('details-modal');
+        const cartCount = document.getElementById('cart-count');
+        const tableMap = document.getElementById('table-map');
+        const partySizeSelector = document.querySelector('.party-size-selector');
+        const bookingForm = document.getElementById('booking-form');
+        const authModal = document.getElementById('auth-modal');
+        const authButton = document.getElementById('auth-button');
+        // NUEVOS SELECTORES PARA EL CARRITO
+        const cartIcon = document.getElementById('cart-icon-container');
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const cartBody = document.getElementById('cart-body');
+        const infoModal = document.getElementById('info-modal'); 
+        const tableModal = document.getElementById('info-modal-table');
+        const welcomeModal = document.getElementById('welcome-modal'); 
+        const confirmLogoutModal = document.getElementById('confirm-logout-modal'); 
+        const logoutModal = document.getElementById('logout-modal');
+        const partnerSuccessModal = document.getElementById('partner-success-modal');
+        const partnerSuccessBtn = document.getElementById('partner-success-btn');
+        const partnerModalX = document.getElementById('partner-modal-x-close');
+
+        // --- LÓGICA DE NAVEGACIÓN ---
+        function showView(viewName) {
+            Object.values(mainViews).forEach(v => v.classList.add('hidden'));
+            mainViews[viewName].classList.remove('hidden');
+            orderSummaryBar.classList.toggle('hidden', viewName !== 'menu');
+            // Ocultamos el header en la vista de confirmación
+            document.querySelector('header').classList.toggle('hidden', viewName === 'confirmation');
+        }
+
+        // --- INICIALIZACIÓN ---
+        async function init() {
+            showView('restaurants');
+            const data = await getApiData('categories.php');
+            if (data) document.getElementById('restaurants-grid').innerHTML = data.categories.map(r => `<div class="restaurant-card" data-category="${r.strCategory}"><img src="${r.strCategoryThumb}" alt="${r.strCategory}"><h3>${r.strCategory}</h3></div>`).join('');
+            
+            checkLoginState();
+            addEventListeners();
+        }
+
+        // --- LÓGICA DE AUTENTICACIÓN (NUEVO) ---
+        function checkLoginState() {
+            const currentUser = localStorage.getItem('foodiespot_currentUser');
+            authButton.textContent = currentUser ? 'Cerrar Sesión' : 'Iniciar Sesión';
+        }
+        function handleAuthButtonClick() {
+            const currentUser = localStorage.getItem('foodiespot_currentUser');
+            if (currentUser) {
+                confirmLogoutModal.classList.add('visible');
+                
+                /* if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                    localStorage.removeItem('foodiespot_currentUser');
+                    alert('Has cerrado sesión.'); 
+                    checkLoginState();
+                } */
+            } else {
+                authModal.innerHTML = `
+                    <div class="auth-modal-content">
+                        <button class="auth-modal-close-btn">&times;</button>
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+                            <button class="auth-tab" data-tab="register">Registrarse</button>
+                        </div>
+                        <form id="login-form" class="auth-form active">
+                            <div class="form-group">
+                                <label for="login-email">Correo</label>
+                                <input type="email" id="login-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Contraseña</label>
+                                <input type="password" id="login-password" required>
+                            </div>
+                            <p id="login-error-message" class="error-message"></p>
+                            <button type="submit">Iniciar Sesión</button>
+                        </form>
+                        <form id="register-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="register-email">Correo</label>
+                                <input type="email" id="register-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-password">Contraseña</label>
+                                <input type="password" id="register-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-confirm-password">Confirmar</label>
+                                <input type="password" id="register-confirm-password" required>
+                            </div>
+                            <p id="register-error-message" class="error-message"></p>
+                            <button type="submit">Crear Cuenta</button>
+                        </form>
+                    </div>`;
+                authModal.classList.add('visible');
+                authModal.querySelector('.auth-modal-close-btn').addEventListener('click', () => authModal.classList.remove('visible'));
+                document.getElementById('register-form').addEventListener('submit', handleRegister);
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
+                authModal.querySelectorAll('.auth-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        authModal.querySelector('.auth-tab.active').classList.remove('active');
+                        tab.classList.add('active');
+                        authModal.querySelector('.auth-form.active').classList.remove('active');
+                        authModal.querySelector(`#${tab.dataset.tab}-form`).classList.add('active');
+                    });
+                });
+            }
+        }
+
+        // Función de Registro (NUEVO)
+        function handleRegister(e) { 
+            e.preventDefault(); 
+            const email = document.getElementById('register-email').value; 
+            const password = document.getElementById('register-password').value; 
+            const errorMessageElement = document.getElementById('register-error-message');
+
+            errorMessageElement.textContent = '';
+            
+            if (password !== document.getElementById('register-confirm-password').value) { 
+                /* alert('Las contraseñas no coinciden.');  */
+                errorMessageElement.textContent = 'Las contraseñas no coinciden.';
+                return; 
+            } 
+            
+            let users = JSON.parse(localStorage.getItem('foodiespot_users')) || []; 
+            if (users.find(user => user.email === email)) { 
+                /* alert('Este correo ya está registrado.'); */ 
+                errorMessageElement.textContent = 'Este correo ya está registrado, favor de iniciar sesión';
+                return; 
+            } 
+            
+            users.push({ email, password }); 
+            localStorage.setItem('foodiespot_users', JSON.stringify(users)); 
+            alert('¡Cuenta creada!'); 
+            document.querySelector('.auth-tab[data-tab="login"]').click(); 
+            e.target.reset(); 
+        }
+
+        // Función de inicio de sesión (NUEVO)
+        function handleLogin(e) { 
+            e.preventDefault(); 
+            const email = document.getElementById('login-email').value; 
+            const password = document.getElementById('login-password').value; 
+            const errorMessageElement = document.getElementById('login-error-message');
+            
+            errorMessageElement.textContent = '';
+
+            let users = JSON.parse(localStorage.getItem('foodiespot_users')) || []; 
+            const user = users.find(u => u.email === email && u.password === password); 
+            
+            if (user) { 
+                localStorage.setItem('foodiespot_currentUser', user.email); 
+                /* alert(`¡Bienvenido!`);  */
+                document.getElementById('welcome-user-email').textContent = user.email;
+                welcomeModal.classList.add('visible');
+
+                // Limpia la clase después de que termine la animación (3 segundos)
+                setTimeout(() => {
+                    welcomeModal.classList.remove('visible');
+                }, 3000);
+
+                authModal.classList.remove('visible'); 
+                e.target.reset(); 
+                checkLoginState();
+            } 
+            else { 
+                /* alert('Credenciales incorrectas.'); */
+                errorMessageElement.textContent = 'Email o contraseña incorrectos. Por favor, regístrate si no tienes una cuenta.'; 
+            } 
+        }
+
+        // --- LÓGICA DEL CARRITO (MODIFICADA Y NUEVA) ---
+        function addToCart(mealId) {
+            const existingItem = cart.find(item => item.idMeal === mealId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                const mealToAdd = currentMenu.find(m => m.idMeal === mealId);
+                if (mealToAdd) {
+                    cart.push({ ...mealToAdd, quantity: 1 });
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartQuantity(mealId, change) {
+            const itemInCart = cart.find(item => item.idMeal === mealId);
+            if (itemInCart) {
+                itemInCart.quantity += change;
+                if (itemInCart.quantity <= 0) {
+                    cart = cart.filter(item => item.idMeal !== mealId);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            document.getElementById('order-total-price').textContent = `$${total.toFixed(2)}`;
+            cartCount.textContent = totalItems;
+            cartCount.classList.toggle('hidden', totalItems === 0);
+
+            document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
+            if (cart.length === 0) {
+                cartBody.innerHTML = '<p style="text-align:center; padding: 20px;">Your order is empty.</p>';
+            } else {
+                cartBody.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <img src="${item.strMealThumb}" alt="${item.strMeal}">
+                        <div class="cart-item-details">
+                            <h4>${item.strMeal}</h4>
+                            <span class="price">$${item.price}</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-change" data-meal-id="${item.idMeal}" data-change="1">+</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-change" data-meal-id="${item.idMeal}" data-change="-1">-</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openCart() {
+            cartDrawer.classList.add('open');
+            cartOverlay.classList.add('visible');
+        }
+
+        function closeCart() {
+            cartDrawer.classList.remove('open');
+            cartOverlay.classList.remove('visible');
+        }
+
+        // --- MANEJADORES DE EVENTOS ---
+        function addEventListeners() {
+            document.querySelector('.logo').addEventListener('click', () => showView('restaurants'));
+            authButton.addEventListener('click', handleAuthButtonClick);
+
+            // NUEVOS EVENTOS DEL CARRITO
+            cartIcon.addEventListener('click', openCart);
+            cartOverlay.addEventListener('click', closeCart);
+            cartDrawer.querySelector('.cart-close-btn').addEventListener('click', closeCart);
+            cartDrawer.querySelector('.cart-continue-btn').addEventListener('click', closeCart);
+            cartBody.addEventListener('click', e => {
+                if (e.target.classList.contains('quantity-change')) {
+                    const mealId = e.target.dataset.mealId;
+                    const change = parseInt(e.target.dataset.change, 10);
+                    updateCartQuantity(mealId, change);
+                }
+            });
+
+            document.addEventListener('click', e => {
+                const category = e.target.closest('.restaurant-card')?.dataset.category;
+                if (category) handleRestaurantClick(category);
+
+                if (e.target.closest('.back-button')) showView(e.target.id === 'back-to-restaurants' ? 'restaurants' : 'menu');
+                if (e.target.id === 'select-table-btn') handleSelectTableClick();
+                if (e.target.id === 'make-another-reservation-btn') { 
+                    resetAppState();                                  
+                }
+
+                const mealId = e.target.closest('.menu-item-card')?.dataset.mealId;
+                if (mealId) {
+                    if (e.target.closest('.add-btn')) addToCart(mealId);
+                    if (e.target.closest('.details-btn')) showDetailsModal(mealId);
+                }
+                if (e.target.closest('.modal-close-btn') || e.target.classList.contains('modal')) detailsModal.classList.remove('visible');
+                if (e.target.id === 'modal-add-btn') { addToCart(e.target.dataset.mealId); detailsModal.classList.remove('visible'); }
+            });
+            
+            infoModal.addEventListener('click', e => {
+                // Si se hace clic en "Aceptar" o en el botón de cerrar
+                if (e.target.id === 'info-modal-accept' || e.target.classList.contains('modal-close-btn')) {
+                    infoModal.classList.remove('visible'); // Cierra este modal
+                    authModal.classList.add('visible');    // Y abre el modal de login/registro
+                }
+            });
+
+            tableModal.addEventListener('click', e => {
+                // Si se hace clic en "Aceptar" o en el botón de cerrar
+                if (e.target.id === 'info-modal-accept' || e.target.classList.contains('modal-close-btn')) {
+                    tableModal.classList.remove('visible'); // Cierra este modal
+                }
+            });
+
+            confirmLogoutModal.addEventListener('click', e => {
+                if (e.target.id === 'confirm-logout-btn') {
+                    // Si se confirma, ejecuta la lógica de cierre de sesión
+                    localStorage.removeItem('foodiespot_currentUser');
+                    /* alert('Has cerrado sesión.'); */ // Mantenemos esta alerta para confirmar la acción
+                    logoutModal.classList.add('visible')
+                    // Limpia la clase después de que termine la animación (3 segundos)
+                    setTimeout(() => {
+                        welcomeModal.classList.remove('visible');
+                    }, 3000);
+
+                    checkLoginState();
+                    confirmLogoutModal.classList.remove('visible');
+                } else if (e.target.id === 'cancel-logout-btn') {
+                    // Si se cancela, simplemente cierra el modal
+                    confirmLogoutModal.classList.remove('visible');
+                }
+            });
+
+            // Listener para el botón "Soy Restaurante"
+            document.getElementById('partner-link').addEventListener('click', () => {
+                showView('monetization');
+            });
+
+            // Listener para el formulario de contacto de restaurantes
+            document.getElementById('partner-contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                // 1. Capturar el nombre para personalizar el mensaje
+                const nameInput = document.getElementById('contact-name').value;
+                const firstName = nameInput.split(' ')[0]; // Tomar solo el primer nombre
+                
+                // 2. Insertar el nombre en el modal
+                document.getElementById('partner-success-name-display').textContent = firstName;
+
+                // 3. Mostrar el modal bonito
+                partnerSuccessModal.classList.add('visible');
+
+                // 4. Limpiar el formulario
+                e.target.reset();
+            });
+
+            // Función para cerrar el modal de éxito
+            const closePartnerModal = () => {
+                partnerSuccessModal.classList.remove('visible');
+            };
+
+            // Cerrar con el botón "Entendido"
+            if (partnerSuccessBtn) partnerSuccessBtn.addEventListener('click', closePartnerModal);
+
+            // Cerrar con la "X"
+            if (partnerModalX) partnerModalX.addEventListener('click', closePartnerModal);
+
+            // Cerrar si hacen clic fuera del modal (en el fondo oscuro)
+            if (partnerSuccessModal) {
+                partnerSuccessModal.addEventListener('click', (e) => {
+                    if (e.target === partnerSuccessModal) {
+                        closePartnerModal();
+                    }
+                });
+            }
+
+
+
+
+            // Estos listeners se añaden cuando se crea la vista de reserva
+            // tableMap.addEventListener('click', ...);
+            // partySizeSelector.addEventListener('click', ...);
+            // bookingForm.addEventListener('submit', ...);
+        }
+
+        async function handleRestaurantClick(category) {
+            currentRestaurant = category;
+            showView('menu');
+            document.getElementById('menu-title').textContent = `${category} Menu`;
+            document.getElementById('back-to-restaurants').classList.remove('hidden');
+            document.getElementById('menu-grid').innerHTML = `<p>Loading...</p>`;
+            const data = await getApiData(`filter.php?c=${category}`);
+            currentMenu = data.meals.map(m => ({ ...m, price: (Math.random() * 20 + 8).toFixed(2) }));
+            document.getElementById('menu-grid').innerHTML = currentMenu.map(item => `
+                <div class="menu-item-card" data-meal-id="${item.idMeal}">
+                    <img src="${item.strMealThumb}" alt="${item.strMeal}">
+                    <div class="menu-item-info"><h4>${item.strMeal}</h4><div class="price">$${item.price}</div></div>
+                    <div class="menu-item-actions"><button class="details-btn">Details</button><button class="add-btn">Add</button></div>
+                </div>`).join('');
+        }
+
+        function handleSelectTableClick() {
+            showView('booking');
+            document.getElementById('booking-title').textContent = `Reserva en ${currentRestaurant}`;
+            populateBookingSummary();
+            generateTables();
+            filterTablesByPartySize();
+            // Re-asignar listeners para elementos dentro de la vista de booking
+            document.getElementById('table-map').addEventListener('click', e => handleTableClick(e.target.closest('.table')));
+            document.querySelector('.party-size-selector').addEventListener('click', handlePartySizeChange);
+            document.getElementById('booking-form').addEventListener('submit', handleFormSubmit);
+        }
+
+        function populateBookingSummary() {
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            document.getElementById('summary-cart-items').innerHTML = cart.map(item => `<li><span>${item.quantity} x ${item.strMeal}</span><span>$${(item.price * item.quantity).toFixed(2)}</span></li>`).join('');
+            document.getElementById('summary-total').textContent = `Total: $${total.toFixed(2)}`;
+        }
+
+        function generateTables() {
+            document.getElementById('table-map').innerHTML = tablesData.map(t => `
+                <div class="table ${t.status}" data-table-id="${t.id}" data-capacity="${t.capacity}">
+                    <span class="table-name">T-${t.id}</span><div class="table-capacity">${PERSON_ICON_SVG}<span>${t.capacity}</span></div>
+                </div>`).join('');
+        }
+
+        function handlePartySizeChange(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            document.querySelector('.party-size-selector .active').classList.remove('active');
+            e.target.classList.add('active');
+            currentPartySize = parseInt(e.target.dataset.size, 10);
+            filterTablesByPartySize();
+        }
+
+        function filterTablesByPartySize() {
+            document.querySelectorAll('#table-map .table').forEach(table => {
+                const capacity = parseInt(table.dataset.capacity, 10);
+                const isSelected = table.classList.contains('selected');
+                const isOccupiedByDefault = tablesData.find(t => t.id == table.dataset.tableId).status === 'occupied';
+                table.classList.toggle('occupied', isOccupiedByDefault || (!isSelected && capacity < currentPartySize));
+                table.classList.toggle('available', !isOccupiedByDefault && !isSelected && capacity >= currentPartySize);
+            });
+        }
+
+        function handleTableClick(table) {
+            if (!table || table.classList.contains('occupied')) return;
+            if (selectedTable === table) return;
+            clearSelectionAndTimer();
+            selectedTable = table;
+            table.classList.remove('available');
+            table.classList.add('selected');
+            startLockTimer(table);
+        }
+
+        function clearSelectionAndTimer() {
+            if (selectedTable) {
+                selectedTable.classList.remove('selected');
+                filterTablesByPartySize();
+                const timerBadge = selectedTable.querySelector('.timer-badge');
+                if (timerBadge) timerBadge.remove();
+            }
+            clearTimeout(tableLockTimer);
+            clearInterval(countdownInterval);
+        }
+
+        function startLockTimer(table) {
+            let timeLeft = 300;
+            const timerBadge = document.createElement('div');
+            timerBadge.className = 'timer-badge';
+            table.appendChild(timerBadge);
+            const updateTimer = () => {
+                timerBadge.textContent = `${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+                if (--timeLeft < 0) {
+                    alert(`El tiempo para la Mesa ${table.dataset.tableId} ha expirado.`);
+                    clearSelectionAndTimer();
+                }
+            };
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
+            tableLockTimer = setTimeout(() => { clearInterval(countdownInterval); clearSelectionAndTimer(); }, 301000);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            if (!selectedTable) { 
+                /* alert('Por favor, selecciona una mesa.');  */
+                tableModal.classList.add('visible')
+                return; 
+            }
+
+            const currentUser = localStorage.getItem('foodiespot_currentUser');
+            if (!currentUser) {
+                /* alert('Debes iniciar sesión para confirmar una reserva.'); */
+                /* authModal.classList.add('visible'); */
+                infoModal.classList.add('visible');
+                return;
+            }
+
+            const tableData = tablesData.find(t => t.id == selectedTable.dataset.tableId);
+            tableData.status = 'occupied';
+            clearSelectionAndTimer();
+
+            renderConfirmationView(currentUser);
+            showView('confirmation');
+
+            /* cart = [];
+            updateCartUI();
+            document.getElementById('booking-form').reset();
+            showView('restaurants'); */
+        }
+
+        async function showDetailsModal(mealId) {
+            const data = await getApiData(`lookup.php?i=${mealId}`);
+            const meal = data.meals[0];
+            const price = currentMenu.find(m => m.idMeal === mealId)?.price || 'N/A';
+            //detailsModal.innerHTML = `<div class="modal-content"><button class="modal-close-btn">&times;</button><img src="${meal.strMealThumb}" alt="${meal.strMeal}" style="width:100%;height:250px;object-fit:cover;"><div style="padding:25px;"><h2 id="modal-title">${meal.strMeal}</h2><p>$${price}</p><button id="modal-add-btn" data-meal-id="${mealId}">Add to Order</button><p>${meal.strInstructions.substring(0, 200)}...</p></div></div>`;
+            detailsModal.innerHTML = `
+                <div class="modal-content">
+                    <div style="position:relative;">
+                        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="modal-hero-image">
+                        <button class="modal-close-floating">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body-content">
+                        <div class="modal-header-row">
+                            <h2 class="modal-title-large">${meal.strMeal}</h2>
+                            <div class="modal-price-tag">$${price}</div>
+                        </div>
+
+                        <p class="modal-description">${meal.strInstructions.substring(0, 180)}...</p>
+
+                        <button class="btn-add-order-large" id="modal-add-btn-new" data-meal-id="${mealId}">
+                            Add to Order - $${price}
+                        </button>
+
+                        <!-- SECCIÓN ASK THE CHEF (IA) -->
+                        <div class="chef-ai-section">
+                            <div class="chef-header">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 2.625v-8.25m0 0a6.01 6.01 0 00-1.5.189m1.5-.189a6.01 6.01 0 011.5.189m-6 8.625v-8.25m0 0a6.01 6.01 0 011.5-.189m-1.5.189a6.01 6.01 0 00-1.5.189m7.5 8.625v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m-6 0a6.01 6.01 0 01-1.5-.189m1.5.189a6.01 6.01 0 001.5-.189m7.5 0v-.189a6.01 6.01 0 00-1.5-.189m1.5.189a6.01 6.01 0 011.5-.189m-6 0a6.01 6.01 0 01-1.5-.189m1.5.189a6.01 6.01 0 001.5-.189"></path></svg>
+                                Ask the Chef (AI)
+                            </div>
+                            <div class="ai-options-grid">
+                                <button class="ai-pill-btn" onclick="handleAiRequest('pairing', '${meal.strMeal}')">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Wine Pairing
+                                </button>
+                                <button class="ai-pill-btn" onclick="handleAiRequest('nutrition', '${meal.strMeal}')">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path></svg>
+                                    Nutrition
+                                </button>
+                                <button class="ai-pill-btn" onclick="handleAiRequest('funfact', '${meal.strMeal}')">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
+                                    Fun Fact
+                                </button>
+                            </div>
+                            <div id="ai-response-area" class="ai-response-box"></div>
+                        </div>
+                    </div>
+                </div>`;
+
+            detailsModal.classList.add('visible');
+
+            // Re-asignar eventos para el botón de cerrar y añadir (porque reemplazamos el HTML)
+            detailsModal.querySelector('.modal-close-floating').addEventListener('click', () => detailsModal.classList.remove('visible'));
+            
+            document.getElementById('modal-add-btn-new').addEventListener('click', (e) => {
+                addToCart(e.target.dataset.mealId);
+                detailsModal.classList.remove('visible');
+            });
+        }
+
+        // --- FUNCIÓN PARA MANEJAR LA IA (GEMINI) ---
+        // Esta función debe estar fuera de showDetailsModal para ser accesible globalmente o adjuntada al window
+        window.handleAiRequest = async function(type, mealName) {
+            const responseArea = document.getElementById('ai-response-area');
+            const buttons = document.querySelectorAll('.ai-pill-btn');
+            
+            // 1. UI: Mostrar estado de carga
+            buttons.forEach(btn => btn.classList.remove('active')); // Quitar activo de otros
+            event.currentTarget.classList.add('active'); // Activar el actual
+            
+            responseArea.classList.add('visible');
+            responseArea.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div> Generating chef's insight...`;
+
+            // 2. LÓGICA: Aquí es donde llamarías a la API de Gemini.
+            // IMPORTANTE: En un entorno real, esto se hace desde el Backend para no exponer tu API KEY.
+            // Como esto es una demo frontend, simularemos la respuesta inteligente.
+
+            try {
+                // SIMULACIÓN DE LLAMADA A API (Espera 1.5 segundos)
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                let aiText = "";
+
+                // Respuestas simuladas basadas en el tipo de botón
+                if (type === 'pairing') {
+                    aiText = `<strong>Chef's Pairing for ${mealName}:</strong><br> I recommend a medium-bodied <em>Pinot Noir</em> or a crisp <em>Chardonnay</em>. The acidity cuts through the richness of the dish perfectly. If you prefer beer, try an Amber Ale.`;
+                } else if (type === 'nutrition') {
+                    aiText = `<strong>Nutritional Estimate (per serving):</strong><br> • Calories: ~650 kcal<br> • Protein: 35g<br> • Carbs: 45g<br> <em>Note: This is an AI estimate based on standard ingredients.</em>`;
+                } else if (type === 'funfact') {
+                    aiText = `<strong>Did you know?</strong><br> The key ingredients in ${mealName} have been used in culinary traditions for over 200 years. It was originally considered a dish for royalty before becoming a popular street food!`;
+                }
+
+                // 3. Mostrar respuesta
+                responseArea.innerHTML = aiText;
+
+                /* 
+                --- CÓDIGO REAL PARA GEMINI (SI TUVIERAS BACKEND) ---
+                const response = await fetch('TU_ENDPOINT_BACKEND/ask-gemini', {
+                    method: 'POST',
+                    body: JSON.stringify({ prompt: `Give me a ${type} for ${mealName}` })
+                });
+                const data = await response.json();
+                responseArea.innerHTML = data.text;
+                */
+
+            } catch (error) {
+                responseArea.innerHTML = "Sorry, the Chef is busy right now. Please try again.";
+            }
+        };
+
+        async function getApiData(endpoint) {
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`);
+                return await response.json();
+            } catch (error) { console.error(`Error:`, error); }
+        }
+
+        function renderConfirmationView(userEmail) {
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            const summaryHTML = cart.map(item => `
+                <li>
+                    <span>${item.quantity} &times; ${item.strMeal}</span>
+                    <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                </li>
+            `).join('');
+
+            mainViews.confirmation.innerHTML = `
+                <div class="confirmation-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+                <h2>Reservation Confirmed!</h2>
+                <p class="confirmation-message">
+                    We've sent a confirmation email to <strong>${userEmail}</strong>. 
+                    Your table at <strong>${currentRestaurant}</strong> is ready for you.
+                </p>
+                <div class="confirmation-summary-card">
+                    <h3>Order Summary</h3>
+                    <ul id="confirmation-summary-items">${summaryHTML}</ul>
+                    <div class="confirmation-total">
+                        <span>Total</span>
+                        <span id="confirmation-total-price">$${total.toFixed(2)}</span>
+                    </div>
+                </div>
+                <button id="make-another-reservation-btn">Make Another Reservation</button>
+            `;
+        }
+
+        function resetAppState() {
+            cart = [];
+            selectedTable = null;
+            currentRestaurant = '';
+            // Resetear el estado 'occupied' de las mesas que no lo estaban por defecto
+            tablesData.forEach(table => {
+                if (table.id !== 5 && table.id !== 8) { // IDs de mesas ocupadas por defecto
+                    table.status = 'available';
+                }
+            });
+            updateCartUI();
+            showView('restaurants');
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>

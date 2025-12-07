@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodieSpot - Pide y Reserva</title>
+    <title>Reservaciones NatSQ - Pide y Reserva</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 <body>
 
     <header>
-        <div class="logo">FoodieSpot</div>
+        <div class="logo">Reservaciones NatSQ</div>
         <!-- CONTENEDOR MODIFICADO -->
         <div class="header-actions">
             <!-- Link para monetización -->
@@ -95,7 +95,7 @@
         <section id="monetization-section" class="hidden">
             <div class="monetization-header">
                 <h2>Impulsa tu Restaurante</h2>
-                <p>Elige el plan perfecto para gestionar tus reservas, mostrar tu menú y atraer más comensales con FoodieSpot.</p>
+                <p>Elige el plan perfecto para gestionar tus reservas, mostrar tu menú y atraer más comensales con Reservaciones NatSQ.</p>
             </div>
 
             <div class="pricing-grid">
@@ -433,12 +433,6 @@
             const currentUser = localStorage.getItem('foodiespot_currentUser');
             if (currentUser) {
                 confirmLogoutModal.classList.add('visible');
-                
-                /* if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                    localStorage.removeItem('foodiespot_currentUser');
-                    alert('Has cerrado sesión.'); 
-                    checkLoginState();
-                } */
             } else {
                 authModal.innerHTML = `
                     <div class="auth-modal-content">
@@ -1032,4 +1026,5 @@
     });
     </script>
 </body>
+
 </html>
